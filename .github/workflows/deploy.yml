@@ -18,6 +18,11 @@ jobs:
           username: hohongya
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # 👇 여기 추가
+      - name: Verify Docker Login
+        run: |
+          docker info
+
       - name: Login ACR
         uses: azure/docker-login@v2
         with:
