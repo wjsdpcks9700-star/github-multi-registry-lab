@@ -12,10 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Docker Hub Login
-        run: |
-          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u hohongya --password-stdin
-
       - name: Login ACR
         uses: azure/docker-login@v2
         with:
@@ -25,15 +21,7 @@ jobs:
 
       - name: Build Image
         run: |
-          docker build -t hohongya/flask-multi-registry:latest .
-
-      - name: Push Docker Hub
-        run: |
-          docker push hohongya/flask-multi-registry:latest
-
-      - name: Tag for ACR
-        run: |
-          docker tag hohongya/flask-multi-registry:latest ${{ secrets.ACR_LOGIN_SERVER }}/flask-multi-registry:latest
+          docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/flask-multi-registry:latest .
 
       - name: Push ACR
         run: |
