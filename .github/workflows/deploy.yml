@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+env:
+  IMAGE_NAME: flask-multi-registry
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,10 +21,25 @@ jobs:
           username: hohongya
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Login ACR
+        uses: azure/docker-login@v2
+        with:
+          login-server: ${{ secrets.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
       - name: Build Image
         run: |
-          docker build -t hohongya/flask-multi-registry:latest .
+          docker build -t hohongya/${{ env.IMAGE_NAME }}:latest .
+
+      - name: Tag Image for ACR
+        run: |
+          docker tag hohongya/${{ env.IMAGE_NAME }}:latest ${{ secrets.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest
 
       - name: Push Docker Hub
         run: |
-          docker push hohongya/flask-multi-registry:latest
+          docker push hohongya/${{ env.IMAGE_NAME }}:latest
+
+      - name: Push ACR
+        run: |
+          docker push ${{ secrets.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest
